@@ -22,5 +22,6 @@
   "bugs": {
     "url": "https://github.com/JavonTeo/cocktail-recipe/issues"
   },
-  "homepage": "https://github.com/JavonTeo/cocktail-recipe#readme"
+  "homepage": "https://github.com/JavonTeo/cocktail-recipe#readme",
+  "type": "module"
 }

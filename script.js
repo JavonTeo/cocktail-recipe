@@ -1,33 +1,40 @@
-const express = require("express");
-const app = express();
-const axios = require('axios');
-const PORT = 8080;
-const URL = "www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita";
+import fetch from "node-fetch";
+const inputBox = document.getElementById('input-box');
+const searchBtn = document.getElementById('search-btn');
+const drinkList = document.getElementById('drink-list');
 
-axios.get(URL)
-.then((response)=> {
-    console.log(response.json());
-})
+//event listeners
+searchBtn.addEventListener('click', getInfo)
 
-// app.use(express.json());
+const URL = "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita";
 
-// app.listen(PORT, () => console.log(`its alive on http://localhost:${PORT}`));
+function query(inputVal) {
+    fetch(URL) //needs to be variable URL
+    .then(response => response.json())
+    .then(data => presentDrinks(data))
+    .catch(error => console.error(error));
+}
 
-// app.get('/tshirt', (req, res) => {
-//     res.status(200).send({
-//         test: "200_OK"
-//     })
-// })
+function presentDrinks(data) {
+    let html = "";
+    if (data.drinks) {
+        data.drinks.forEach(drink => {
+            html += `
+            <div class = "drink-item" id = "${drink.idDrink}">
+            <div class = "drink-name">
+            <h2>${drink.strDrink}</h2>
+            </div>
+            </div>`
+            
+        });
+    } else {
+        html = "<p>Sorry! We couldn't find any drink matching your search.</p>"
+    }
+    drinkList.innerHTML = html;
+}
 
-// app.post('/tshirt/:id', (req, res) => {
-    
-//     const {id} = req.params;
-//     const { logo } = req.body();
-
-//     if (!logo) {
-//         res.status(418).send({ message : "We need a logo"});
-//     }
-//     res.status(200).send({
-//         tshirt: `${logo} with ID: ${id}`
-//     })
-// })
+function getInfo() {
+    let inputVal = inputBox.value.trim();
+    // alert("input is " + inputVal)
+    query(inputVal)
+}

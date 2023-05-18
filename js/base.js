@@ -1,32 +1,30 @@
 const inputBox = document.getElementById('input-box');
 const searchBtn = document.getElementById('search-btn');
 const searchResult = document.getElementById('search-result');
-const form = document.querySelector("form");
 
 //event listeners
 $("form").on('submit', (event) => {
     event.preventDefault();
-    getInfo();
-})
+    findDrink();
+});
 
 const searchURL = "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=";
 
-function getInfo() {
+function findDrink() {
     let inputVal = inputBox.value.trim();
-    query(inputVal);
+    searchDB(inputVal);
 }
 
-function query(inputVal) {
+function searchDB(inputVal) {
     const URL = searchURL + inputVal;
-    console.log(URL);
+    // console.log(URL);
     fetch(URL)
     .then(response => response.json())
     .then(data => {
-        console.log("FOUND");
-        console.log(data);
         $("#search-result").empty();
         const drinksFound = data.drinks;
-        console.log(drinksFound);
+        // console.log(drinksFound);
+
         if (drinksFound == null) {
             const cannotFindDrink = document.createElement('h2');
             cannotFindDrink.textContent = "Sorry, we cannot find a drink matching that search.";
@@ -36,17 +34,39 @@ function query(inputVal) {
             searchResult.appendChild(cannotFindDrink);
         } else {
             drinksFound.forEach(drink => {
+                let drinkName;
+                const drinkDetails = {};
+                for (const key in drink) {
+                    if (key == "strDrink") {
+                        drinkName = drink[key];
+                    }
+                    drinkDetails[key] = drink[key];
+                }
+
                 const drinkLink = document.createElement('a');
                 drinkLink.className = "drink-figure";
                 const drinkImg = document.createElement('img');
                 const figCaption = document.createElement('figcaption');
                 drinkLink.appendChild(drinkImg);
                 drinkLink.appendChild(figCaption);
-                drinkImg.src = drink.strDrinkThumb;
-                figCaption.textContent = drink.strDrink;
+                drinkImg.src = drinkDetails.strDrinkThumb;
+                figCaption.textContent = drinkName;
+                drinkLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    displayDrink(drinkName);
+                });
                 searchResult.appendChild(drinkLink);
+
+                sessionStorage.setItem(drinkName, JSON.stringify(drinkDetails));
             });
         }
     })
-    .catch(error => console.error(error));
+    .catch(error => console.error(error))
+}
+
+function displayDrink(drinkName) {
+    var drinkData = sessionStorage.getItem(drinkName);
+    console.log(drinkData);
+    var url = './drink-details.html?data=' + JSON.stringify(encodeURI(drinkData));
+    window.open(url, '_blank');
 }
